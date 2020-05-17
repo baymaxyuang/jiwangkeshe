@@ -1,17 +1,32 @@
-#define max_IP_address_text 20 //IPµØÖ·×Ö·û´®µÄ×î´ó³¤¶È
-#define max_list_file_path_text 200//IPµØÖ·±íÂ·¾¶×Ö·û´®µÄ×î´ó³¤¶È
-
-
+#pragma comment(lib,"wsock32.lib")
+#define _CRT_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define max_IP_address_text 20 //IPåœ°å€å­—ç¬¦ä¸²çš„æœ€å¤§é•¿åº¦
+#define max_list_file_path_text 200//IPåœ°å€è¡¨è·¯å¾„å­—ç¬¦ä¸²çš„æœ€å¤§é•¿åº¦
+#define ID_TABLE_SIZE 20
 #define DEBUG_OFF 0
 #define DEBUG_I 1
 #define DEBUG_II 2
+#define DNS_PORT 53
 
-typedef struct {
+#include<stdio.h>
+#include<winsock2.h>
+
+typedef struct InitialParameters {
 	int debug_information_level;
-	char extern_DNS_server_IP_address[max_IP_address_text];//¿Õ´®ËµÃ÷Ã»ÓĞÌîÈë
-	char file_path[max_list_file_path_text];//¿Õ´®ËµÃ÷Ã»ÓĞÌîÈë
-
+	char extern_DNS_server_IP_address[max_IP_address_text];//ç©ºä¸²è¯´æ˜æ²¡æœ‰å¡«å…¥
+	char file_path[max_list_file_path_text];//ç©ºä¸²è¯´æ˜æ²¡æœ‰å¡«å…¥
 }InitialParameters;
+typedef struct Idconvert {
+	unsigned short origin_id;
+	int expire_time;//è¶…æ—¶å¤„ç†
+	int have_check;
+	SOCKADDR client;
+}Idconvert;
 
+void Access_info(int argc, char* argv[], InitialParameters* initial_parameters);
 
-//¶ÓÁĞÒª´æ´¢ĞÅÏ¢µÄ½á¹¹Ìå£¨±¨ÎÄ¼Ó·¢ĞÅÕßµØÖ·bulabula¡£¡£¡££©
+WSADATA wsaData;
+SOCKET local_socket, extern_socket;
+SOCKADDR_IN local_name, extern_name;
+//é˜Ÿåˆ—è¦å­˜å‚¨ä¿¡æ¯çš„ç»“æ„ä½“ï¼ˆæŠ¥æ–‡åŠ å‘ä¿¡è€…åœ°å€bulabulaã€‚ã€‚ã€‚ï¼‰
