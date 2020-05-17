@@ -1,57 +1,95 @@
-#include<stdio.h>
 #include"util.h"
 
-//ÓÃÓÚÍ¨ĞÅµÄÈ«¾Ö±äÁ¿£º
-int current_event = 0;//ÓÃÓÚÖ÷Ïß³ÌºÍµÚ¶şÏß³ÌÍ¨ĞÅ
+//ç”¨äºé€šä¿¡çš„å…¨å±€å˜é‡ï¼š
+int current_event = 0;//ç”¨äºä¸»çº¿ç¨‹å’Œç¬¬äºŒçº¿ç¨‹é€šä¿¡
 
-int debug_information_level = DEBUG_OFF;//µ÷ÊÔĞÅÏ¢µÈ¼¶
-char extern_DNS_server_IP_address[max_IP_address_text]="202.106.0.20"; //ÍâÔ´DNS·şÎñÆ÷IPµØÖ·
-int exception_flag = 0; //Òì³£±ê¼Ç£¬ÓĞÒì³£Ê±»á±»ÖÃ1
+int debug_information_level = DEBUG_OFF;//è°ƒè¯•ä¿¡æ¯ç­‰çº§
+char extern_DNS_server_IP_address[max_IP_address_text]="202.106.0.20"; //å¤–æºDNSæœåŠ¡å™¨IPåœ°å€
+int exception_flag = 0; //å¼‚å¸¸æ ‡è®°ï¼Œæœ‰å¼‚å¸¸æ—¶ä¼šè¢«ç½®1
 
-
-//ÓÃÓÚĞÅÏ¢´æ´¢µÄÈ«¾Ö±äÁ¿£º
-//³õÊ¼Ê±¶ÁÈëµÄ¶ÔÓ¦±í£¬Õâ¸öÒ»Ö±±£Áô
-//¶¯Ì¬¸üĞÂµÄ¶ÔÓ¦±íĞÅÏ¢
-
-
+InitialParameters init;
+//ä¸­ç»§åŠŸèƒ½æ—¶çš„idè½¬æ¢è¡¨
+Idconvert idconvert[ID_TABLE_SIZE];
+//ç”¨äºä¿¡æ¯å­˜å‚¨çš„å…¨å±€å˜é‡ï¼š
+//åˆå§‹æ—¶è¯»å…¥çš„å¯¹åº”è¡¨ï¼Œè¿™ä¸ªä¸€ç›´ä¿ç•™
+//åŠ¨æ€æ›´æ–°çš„å¯¹åº”è¡¨ä¿¡æ¯
 
 int main(int argc, char* argv[])
 {
-	//·şÎñÆ÷³õÊ¼»¯²¿·Ö£º
+	//æœåŠ¡å™¨åˆå§‹åŒ–éƒ¨åˆ†ï¼š
+	//å¯¹æ§åˆ¶å°å‚æ•°è¿›è¡Œé¢„å¤„ç†
+	//æ ¹æ®æ§åˆ¶å°å‚æ•°åšå‡ºååº”ï¼ŒåŒ…æ‹¬è®¾ç½®è°ƒè¯•ä¿¡æ¯ç­‰çº§ï¼Œè®¾ç½®å¤–æºDNSæœåŠ¡å™¨IPåœ°å€ï¼Œè¯»å…¥
+	Access_info(argc, argv, &init);
 
-	//¶Ô¿ØÖÆÌ¨²ÎÊı½øĞĞÔ¤´¦Àí
+	for (int i = 0; i < ID_TABLE_SIZE; i++)
+	{
+		idconvert[i].origin_id = 0;
+		idconvert[i].have_check = TRUE;
+		idconvert[i].expire_time = 0;
+		memset(&(idconvert[i].client), 0, sizeof(SOCKADDR_IN));
+	}
 
+	WSAStartup(MAKEWORD(2, 2), &wsaData);			//åˆå§‹åŒ–ws2_32.dllåŠ¨æ€é“¾æ¥åº“
+	local_socket = socket(AF_INET, SOCK_DGRAM, 0);
+	extern_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-	//¸ù¾İ¿ØÖÆÌ¨²ÎÊı×ö³ö·´Ó¦£¬°üÀ¨ÉèÖÃµ÷ÊÔĞÅÏ¢µÈ¼¶£¬ÉèÖÃÍâÔ´DNS·şÎñÆ÷IPµØÖ·£¬¶ÁÈë
+	int non_block = 1;
+	ioctlsocket(local_socket, FIONBIO, (u_long FAR*)&non_block);
+	ioctlsocket(extern_socket, FIONBIO, (u_long FAR*)&non_block);
 
-	//³õÊ¼»¯Á½¸öÌ×½Ó×Ö£¬·Ö±ğÓÃÓÚºÍÓÃ»§ÒÔ¼°ÍâÔ´DNS·şÎñÆ÷Í¨ĞÅ
-	
-	//³õÊ¼»¯±¨ÎÄºÍĞÅÏ¢¶ÓÁĞ£¬ÓÃÓÚ»º´æ´ÓÍâÔ´DNS·şÎñÆ÷ÊÕµ½µÄ±¨ÎÄ¼°Ïà¹ØĞÅÏ¢
+	if (local_socket < 0)
+	{
+		if (init.debug_information_level >= 1)
+			printf("Create local socket failed.\n");
+		exit(1);
+	}
 
-	//³õÊ¼»¯±¨ÎÄºÍĞÅÏ¢¶ÓÁĞ£¬ÓÃÓÚ»º´æ´ÓÓÃ»§ÊÕµ½µÄ±¨ÎÄÒÔ¼°ÓÃ»§µÄµØÖ·µÈÏà¹ØĞÅÏ¢
+	//åˆå§‹åŒ–ä¸¤ä¸ªå¥—æ¥å­—ï¼Œåˆ†åˆ«ç”¨äºå’Œç”¨æˆ·ä»¥åŠå¤–æºDNSæœåŠ¡å™¨é€šä¿¡
+	local_name.sin_family = AF_INET;            /* Set the family as AF_INET (TCP/IP) */
+	local_name.sin_addr.s_addr = INADDR_ANY;    /* Set to any */
+	local_name.sin_port = htons(DNS_PORT);      /* Set the port as DNS port (53) */
 
-	//¿ªÆôµÚ¶şÏß³Ì£¬±£Ö¤À´×ÔÓÃ»§ºÍÍâÔ´DNS·şÎñÆ÷µÄµÄ±¨ÎÄºÍÊı¾İ¿ÉÒÔ¼°Ê±ÊÕµ½£¬ÇÒÊÜµ½ºó»áÓĞÏàÓ¦µÄ±ê¼Ç
-	//Õâ¸öÖ÷ÒªÊÇÎªµÚÒ»Ïß³ÌÌá¹©¡°½ÓÊÜÊÂ¼şĞÅÏ¢¡±µÄ
+	extern_name.sin_family = AF_INET;                         /* Set the family as AF_INET (TCP/IP) */
+	extern_name.sin_addr.s_addr = inet_addr(init.extern_DNS_server_IP_address);   /* Set to the IP of extern DNS server */
+	extern_name.sin_port = htons(DNS_PORT);
+
+	int reuse = 1;
+	setsockopt(local_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));//è®¾ç½®å¥—æ¥å­—çš„é€‰é¡¹,é¿å…å‡ºç°æœ¬åœ°ç«¯å£è¢«å ç”¨æƒ…å†µ
+	//ç»‘å®šæœ¬åœ°å¥—æ¥å­—
+	if (bind(local_socket, (struct sockaddr*) & local_name, sizeof(local_name)) < 0)
+	{
+		if (init.debug_information_level >= 1)
+			printf("Bind socket port failed.\n");
+		exit(1);
+	}
+
+	printf("Bind socket port successfully.\n");
+	//åˆå§‹åŒ–æŠ¥æ–‡å’Œä¿¡æ¯é˜Ÿåˆ—ï¼Œç”¨äºç¼“å­˜ä»å¤–æºDNSæœåŠ¡å™¨æ”¶åˆ°çš„æŠ¥æ–‡åŠç›¸å…³ä¿¡æ¯
+
+	//åˆå§‹åŒ–æŠ¥æ–‡å’Œä¿¡æ¯é˜Ÿåˆ—ï¼Œç”¨äºç¼“å­˜ä»ç”¨æˆ·æ”¶åˆ°çš„æŠ¥æ–‡ä»¥åŠç”¨æˆ·çš„åœ°å€ç­‰ç›¸å…³ä¿¡æ¯
+
+	//å¼€å¯ç¬¬äºŒçº¿ç¨‹ï¼Œä¿è¯æ¥è‡ªç”¨æˆ·å’Œå¤–æºDNSæœåŠ¡å™¨çš„çš„æŠ¥æ–‡å’Œæ•°æ®å¯ä»¥åŠæ—¶æ”¶åˆ°ï¼Œä¸”å—åˆ°åä¼šæœ‰ç›¸åº”çš„æ ‡è®°
+	//è¿™ä¸ªä¸»è¦æ˜¯ä¸ºç¬¬ä¸€çº¿ç¨‹æä¾›â€œæ¥å—äº‹ä»¶ä¿¡æ¯â€çš„
 
 	
 	int event = 0;
 	
-	//dns·şÎñÆ÷µÄÖ÷Ğ­Òé²¿·Ö£º
-	while (exception_flag == 0)//ÎŞÒì³£
+	//dnsæœåŠ¡å™¨çš„ä¸»åè®®éƒ¨åˆ†ï¼š
+	while (exception_flag == 0)//æ— å¼‚å¸¸
 	{
-		event = Wait_for_enent();
-		//´ÓÊÂ¼şµÈ´ıÆ÷ÖĞ½ÓÊÜÊÂ¼şĞÅÏ¢£¬Ô¤ÉèµÄĞÅÏ¢ÀàĞÍÓĞ£ºÊÕµ½ÍâÔ´DNS·şÎñÆ÷±¨ÎÄ£¬ÊÕµ½ÓÃ»§±¨ÎÄ£¬ÍâÔ´DNS·şÎñÆ÷³¬Ê±µÈµÈ
+		//event = Wait_for_enent();
+		//ä»äº‹ä»¶ç­‰å¾…å™¨ä¸­æ¥å—äº‹ä»¶ä¿¡æ¯ï¼Œé¢„è®¾çš„ä¿¡æ¯ç±»å‹æœ‰ï¼šæ”¶åˆ°å¤–æºDNSæœåŠ¡å™¨æŠ¥æ–‡ï¼Œæ”¶åˆ°ç”¨æˆ·æŠ¥æ–‡ï¼Œå¤–æºDNSæœåŠ¡å™¨è¶…æ—¶ç­‰ç­‰
 
 		switch (event)
 		{
 		default:
 			break;
 		}
-		//¶Ô²»Í¬Çé¿ö·Ö±ğ´¦Àí
+		//å¯¹ä¸åŒæƒ…å†µåˆ†åˆ«å¤„ç†
 
 
-		//×îºó¶Ô¶ÔÓ¦±í×öÎ¬»¤
-		Update_data();
+		//æœ€åå¯¹å¯¹åº”è¡¨åšç»´æŠ¤
+		//Update_data();
 
 
 	}
@@ -62,16 +100,16 @@ int main(int argc, char* argv[])
 }
 
 
-void Serve_for_ThreadII(Á½¸öÌ×½Ó×Ö£¬Á½¸ö¶ÓÁĞµÄµØÖ·)
-{
-
-}
-
-int Wait_for_enent()
-{
-	int event = 0;
-	
-	
-	
-	return event;
-}
+//void Serve_for_ThreadII(ä¸¤ä¸ªå¥—æ¥å­—ï¼Œä¸¤ä¸ªé˜Ÿåˆ—çš„åœ°å€)
+//{
+//
+//}
+//
+//int Wait_for_enent()
+//{
+//	int event = 0;
+//	
+//	
+//	
+//	return event;
+//}
