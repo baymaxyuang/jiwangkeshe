@@ -8,9 +8,18 @@
 #define DEBUG_I 1
 #define DEBUG_II 2
 #define DNS_PORT 53
+#define max_datagram_length 512
+#define max_datagram_info_queue_size 500
+
+
+#define RECEIVE_DATAGRAM_FROM_USERS 1
+#define RECEIVE_DATAGRAM_FROM_EXTERN 2
+
 
 #include<stdio.h>
 #include<winsock2.h>
+
+typedef char byte;
 
 typedef struct InitialParameters {
 	int debug_information_level;
@@ -24,9 +33,49 @@ typedef struct Idconvert {
 	SOCKADDR client;
 }Idconvert;
 
+typedef struct{
+	byte data[max_datagram_length];
+}DataGram;
+
+
+
+typedef struct{
+	DataGram datagram;//数据报内容
+	int datagram_length;
+	SOCKADDR from;//数据报来源的地址
+	int addrlen;//数据报地址的长度
+	long long time;//收到数据报的时间戳
+	
+}DataGramInfo ;
+
+
+//数据包信息缓存队列
+
+typedef struct QNode * PtrToQNode;
+struct QNode {
+	DataGramInfo datagram_info;
+	PtrToQNode Next;
+};
+typedef struct queue * Queue;
+struct queue{
+	PtrToQNode Front, Rear;
+	int MaxSize;
+	int CurrentSize;
+};
+
+
+
 void Access_info(int argc, char* argv[], InitialParameters* initial_parameters);
 
 WSADATA wsaData;
 SOCKET local_socket, extern_socket;
 SOCKADDR_IN local_name, extern_name;
 //队列要存储信息的结构体（报文加发信者地址bulabula。。。）
+
+
+Queue Create_Queue(int MaxSize);
+void Delete_Queue(Queue Q);
+int In_Queue(Queue Q, DataGramInfo datagram_info);
+int Out_Queue(Queue Q, DataGramInfo *datagram_info_ptr);
+int QIs_full(Queue Q);
+int QIs_empty(Queue Q);

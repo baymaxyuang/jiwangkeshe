@@ -91,3 +91,130 @@ void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 //{
 //
 //}
+
+
+
+//信息队列相关操作,共六个
+
+Queue Create_Queue(int MaxSize)
+{
+	Queue Q = (Queue)malloc(sizeof(struct queue));
+	Q->Front = Q->Rear = NULL;
+	Q->MaxSize = MaxSize;
+	Q->CurrentSize = 0;
+}
+
+void Delete_Queue(Queue Q)
+{
+	DataGramInfo temp;
+	while (!QIs_empty(Q))
+	{
+		Out_Queue(Q, &temp);
+	}
+	free(Q);
+}
+
+int In_Queue(Queue Q, DataGramInfo datagram_info)
+{
+	if (QIs_full(Q))
+	{
+		return 0;//表示入队失败
+	}
+	else
+	{
+		PtrToQNode temp = (PtrToQNode)malloc(sizeof(struct QNode));
+		temp->datagram_info = datagram_info;
+		temp->Next = NULL;
+		Q->CurrentSize += 1;
+		
+		if (QIs_empty(Q))
+		{
+			Q->Front = temp;
+			Q->Rear = temp;
+			
+		}
+		else
+		{
+			Q->Rear->Next = temp;
+			Q->Rear = temp;
+		}
+		return 1;
+	}
+
+}
+int Out_Queue(Queue Q,DataGramInfo *datagram_info_ptr)
+{
+	if (QIs_empty(Q))
+	{
+		return 0;//表示出队失败
+	}
+	else
+	{
+		*datagram_info_ptr = Q->Front->datagram_info;
+		Q->CurrentSize -= 1;
+		if (Q->Front == Q->Rear)
+		{
+			free(Q->Front);
+			Q->Front = Q->Rear = NULL;		
+		}
+		else
+		{
+			PtrToQNode temp = Q->Front;
+			Q->Front = Q->Front->Next;
+			free(temp);
+		}
+		return 1;
+	}
+}
+
+int QIs_full(Queue Q)
+{
+	return (Q->CurrentSize == Q->MaxSize) ? 1 : 0;
+}
+
+int QIs_empty(Queue Q)
+{
+	return (Q->Front == NULL) ? 1 : 0;
+}
+
+//获取当前时间
+long long get_current_time()
+{
+
+
+
+
+	return 0;
+}
+
+DataGramInfo Receive_datagram(SOCKET sock)
+{
+	DataGramInfo datagraminfo_temp;
+	DataGram datagram_temp;
+	int datagram_length;
+	SOCKADDR from;
+	int addrlen;
+	datagram_length = recvfrom(sock, (char *)(&datagram_temp), max_datagram_length, 0, &from, &addrlen);
+	datagraminfo_temp.addrlen = addrlen;
+	datagraminfo_temp.datagram = datagram_temp;
+	datagraminfo_temp.datagram_length = datagram_length;
+	datagraminfo_temp.from = from;
+	datagraminfo_temp.time = get_current_time();
+}
+
+
+
+
+int Receive_datagram_to_queue(Queue Q, SOCKET sock)
+{
+	if (QIs_full(Q))
+	{
+		return 0;
+	}
+	else
+	{
+		DataGramInfo datagraminfo_temp;
+		datagraminfo_temp = Receive_datagram(sock);
+		In_Queue(Q, datagraminfo_temp);
+	}
+}
