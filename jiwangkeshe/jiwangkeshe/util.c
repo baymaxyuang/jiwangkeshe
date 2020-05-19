@@ -6,7 +6,7 @@
 
 //记时的函数
 
-
+void Set_time_out()
 
 
 
@@ -52,10 +52,22 @@ void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 
 
 //读入对应表的函数
-//void Read_data(列表数据结构的地址, char* path)
-//{
-//
-//}
+void read_data()
+{
+	FILE* file;
+	int i = 0;
+	if ((file = fopen("dnsrely.txt", "r")) == NULL)
+		return;
+	char url[max_list_file_path_text], ip[max_IP_address_text];
+	while (fscanf(file, "%s %s", ip, url) > 0) {
+		if (debug_information_level >= 1)
+			printf("Read from 'dnsrelay.txt Url: %s, IP: %s\n", url, ip);
+		local_table[i].ip = ip;
+		local_table[i].url = url;
+		i++;
+	}
+	fclose(file);
+}
 //
 ////更新对应表的函数，过时的就不要了
 //void Update_data()
@@ -92,7 +104,10 @@ void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 //
 //}
 
+void Add_to_cache(string* url, string* ip) //向cache中更新（LRU部分）
+{
 
+}
 
 //信息队列相关操作,共六个
 

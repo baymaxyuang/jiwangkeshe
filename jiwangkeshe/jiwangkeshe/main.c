@@ -1,5 +1,7 @@
 #include"util.h"
-#include<windows.h>   //创建线程函数需要操作系统函数#include<process.h>   //创建线程函数头文件
+#include<windows.h>   //创建线程函数需要操作系统函数
+#include<process.h>   //创建线程函数头文件
+
 //用于通信的全局变量：
 int current_event = 0;//用于主线程和第二线程通信
 
@@ -77,9 +79,16 @@ int main(int argc, char* argv[])
 	datagram_info_queue_for_user = Create_Queue(max_datagram_info_queue_size);
 
 
-		HANDLE Thread2=0;       //线程的访问句柄	unsigned ThreadID = 1;	//线程标识号,不用变量赋值，则只能为NULL	Thread2 = _beginThreadex(NULL, 0, Serve_for_ThreadII, NULL, 0, &ThreadID);    //开启第二线程，保证来自用户和外源DNS服务器的的报文和数据可以及时收到，且受到后会有相应的标记
+
 	
-	WaitForSingleObject(Thread2, INFINITE);//等待线程结束	CloseHandle(Thread2);//无须控制线程时删除此句柄，可防止内核对象泄露。
+	HANDLE Thread2=0;       //线程的访问句柄
+	unsigned ThreadID = 1;
+	//线程标识号,不用变量赋值，则只能为NULL
+	Thread2 = _beginThreadex(NULL, 0, Serve_for_ThreadII, NULL, 0, &ThreadID);
+    //开启第二线程，保证来自用户和外源DNS服务器的的报文和数据可以及时收到，且受到后会有相应的标记
+	
+	WaitForSingleObject(Thread2, INFINITE);//等待线程结束
+	CloseHandle(Thread2);//无须控制线程时删除此句柄，可防止内核对象泄露。
 	
 	int event = 0;
 	
@@ -101,7 +110,9 @@ int main(int argc, char* argv[])
 		//Update_data();
 
 
-	}			
+	}		
+	
+
 	
 
 	return 0;
