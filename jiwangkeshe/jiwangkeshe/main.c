@@ -5,7 +5,7 @@
 //用于通信的全局变量：
 int current_event = 0;//用于主线程和第二线程通信
 
-int debug_information_level = DEBUG_OFF;//调试信息等级
+
 char extern_DNS_server_IP_address[max_IP_address_text]="202.106.0.20"; //外源DNS服务器IP地址
 int exception_flag = 0; //异常标记，有异常时会被置1
 

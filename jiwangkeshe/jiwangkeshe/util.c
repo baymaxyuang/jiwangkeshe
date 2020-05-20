@@ -6,7 +6,9 @@
 
 //记时的函数
 
-void Set_time_out()
+void Set_time_out() {
+
+}
 
 
 
@@ -52,7 +54,7 @@ void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 
 
 //读入对应表的函数
-void read_data()
+void read_data(InitialParameters* initial_parameters)
 {
 	FILE* file;
 	int i = 0;
@@ -60,7 +62,7 @@ void read_data()
 		return;
 	char url[max_list_file_path_text], ip[max_IP_address_text];
 	while (fscanf(file, "%s %s", ip, url) > 0) {
-		if (debug_information_level >= 1)
+		if (initial_parameters->debug_information_level >= 1)
 			printf("Read from 'dnsrelay.txt Url: %s, IP: %s\n", url, ip);
 		local_table[i].ip = ip;
 		local_table[i].url = url;
@@ -104,7 +106,7 @@ void read_data()
 //
 //}
 
-void Add_to_cache(string* url, string* ip) //向cache中更新（LRU部分）
+void Add_to_cache(char *url, char* ip) //向cache中更新（LRU部分）
 {
 
 }
