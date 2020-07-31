@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="dnsProtocol.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="queue.cpp" />
     <ClCompile Include="util.c" />
   </ItemGroup>
   <ItemGroup>

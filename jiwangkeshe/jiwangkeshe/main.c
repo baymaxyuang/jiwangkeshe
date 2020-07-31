@@ -6,7 +6,7 @@
 int current_event = 0;//用于主线程和第二线程通信
 
 
-char extern_DNS_server_IP_address[max_IP_address_text]="202.106.0.20"; //外源DNS服务器IP地址
+char extern_DNS_server_IP_address[max_IP_address_text] = "202.106.0.20"; //外源DNS服务器IP地址
 int exception_flag = 0; //异常标记，有异常时会被置1
 
 InitialParameters init;
@@ -15,8 +15,6 @@ Idconvert idconvert[ID_TABLE_SIZE];
 //用于信息存储的全局变量：
 //初始时读入的对应表，这个一直保留
 //动态更新的对应表信息
-
-
 
 //报文和信息队列
 Queue datagram_info_queue_for_user;
@@ -58,13 +56,13 @@ int main(int argc, char* argv[])
 	local_name.sin_port = htons(DNS_PORT);      /* Set the port as DNS port (53) */
 
 	extern_name.sin_family = AF_INET;                         /* Set the family as AF_INET (TCP/IP) */
-	//printf("%s", init.extern_DNS_server_IP_address);
 	extern_name.sin_addr.s_addr = inet_addr(init.extern_DNS_server_IP_address);   /* Set to the IP of extern DNS server */
 	extern_name.sin_port = htons(DNS_PORT);
 
 	int reuse = 1;
 	setsockopt(local_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));//设置套接字的选项,避免出现本地端口被占用情况
 	//绑定本地套接字
+
 	if (bind(local_socket, (struct sockaddr*) & local_name, sizeof(local_name)) < 0)
 	{
 		if (init.debug_information_level >= 1)
@@ -78,10 +76,7 @@ int main(int argc, char* argv[])
 	datagram_info_queue_for_extern_DNS_server = Create_Queue(max_datagram_info_queue_size);
 	datagram_info_queue_for_user = Create_Queue(max_datagram_info_queue_size);
 
-
-
-	
-	HANDLE Thread2=0;       //线程的访问句柄
+	HANDLE Thread2 = 0;       //线程的访问句柄
 	unsigned ThreadID = 1;
 	//线程标识号,不用变量赋值，则只能为NULL
 	Thread2 = _beginThreadex(NULL, 0, Serve_for_ThreadII, NULL, 0, &ThreadID);

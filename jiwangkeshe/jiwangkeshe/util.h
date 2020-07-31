@@ -1,3 +1,4 @@
+#pragma once
 #pragma comment(lib,"wsock32.lib")
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
@@ -22,7 +23,7 @@
 #include<stdio.h>
 #include<winsock2.h>
 
-typedef char byte;
+typedef char my_byte;
 
 typedef struct table{
 	char* ip;
@@ -35,6 +36,7 @@ typedef struct InitialParameters {
 	char extern_DNS_server_IP_address[max_IP_address_text];//空串说明没有填入
 	char file_path[max_list_file_path_text];//空串说明没有填入
 }InitialParameters;
+
 typedef struct Idconvert {
 	unsigned short origin_id;
 	int expire_time;//超时处理
@@ -43,7 +45,7 @@ typedef struct Idconvert {
 }Idconvert;
 
 typedef struct{
-	byte data[max_datagram_length];
+	my_byte data[max_datagram_length];
 }DataGram;
 
 
@@ -60,12 +62,12 @@ typedef struct{
 
 //数据包信息缓存队列
 
-typedef struct QNode * PtrToQNode;
+typedef struct QNode* PtrToQNode;
 struct QNode {
 	DataGramInfo datagram_info;
 	PtrToQNode Next;
 };
-typedef struct queue * Queue;
+typedef struct queue* Queue;
 struct queue{
 	PtrToQNode Front, Rear;
 	int MaxSize;
@@ -75,7 +77,7 @@ struct queue{
 
 
 void Access_info(int argc, char* argv[], InitialParameters* initial_parameters);
-
+void Serve_for_ThreadII();
 WSADATA wsaData;
 SOCKET local_socket, extern_socket;
 SOCKADDR_IN local_name, extern_name;
