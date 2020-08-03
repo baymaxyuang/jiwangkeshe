@@ -1,29 +1,27 @@
+#include<stdio.h>
+#include<winsock2.h>
+
 #pragma once
 #pragma comment(lib,"wsock32.lib")
+
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define max_IP_address_text 20 //IP æœ€å¤§é•¿åº¦
-#define max_list_file_path_text 200// url æœ€å¤§é•¿åº¦
-
-#define ID_TABLE_SIZE 20 //url-ip è¡¨ä¸­æœ€å¤§è¡Œæ•°
+#define max_IP_address_text 20 //IP ×î´ó³¤¶È
+#define max_list_file_path_text 200// url ×î´ó³¤¶È
+#define ID_TABLE_SIZE 20 //url-ip ±íÖĞ×î´óĞĞÊı
 #define DEBUG_OFF 0
 #define DEBUG_I 1
 #define DEBUG_II 2
 #define DNS_PORT 53
 #define max_datagram_length 512
 #define max_datagram_info_queue_size 500
-#define max_time_to_out 10 //è®¾ç½®è¶…æ—¶æ—¶é—´ä¸º10s
-
-
-
+#define max_time_to_out 10 //ÉèÖÃ³¬Ê±Ê±¼äÎª10s
 #define RECEIVE_DATAGRAM_FROM_USERS 1
 #define RECEIVE_DATAGRAM_FROM_EXTERN 2
 
 
-#include<stdio.h>
-#include<winsock2.h>
-
 typedef char my_byte;
+
 
 typedef struct table{
 	char* ip;
@@ -33,13 +31,13 @@ table local_table[ID_TABLE_SIZE];
 
 typedef struct InitialParameters {
 	int debug_information_level;
-	char extern_DNS_server_IP_address[max_IP_address_text];//ç©ºä¸²è¯´æ˜æ²¡æœ‰å¡«å…¥
-	char file_path[max_list_file_path_text];//ç©ºä¸²è¯´æ˜æ²¡æœ‰å¡«å…¥
+	char extern_DNS_server_IP_address[max_IP_address_text];//¿Õ´®ËµÃ÷Ã»ÓĞÌîÈë
+	char file_path[200];//¿Õ´®ËµÃ÷Ã»ÓĞÌîÈë
 }InitialParameters;
 
 typedef struct Idconvert {
 	unsigned short origin_id;
-	int expire_time;//è¶…æ—¶å¤„ç†
+	int expire_time;//³¬Ê±´¦Àí
 	int have_check;
 	SOCKADDR client;
 }Idconvert;
@@ -51,16 +49,16 @@ typedef struct{
 
 
 typedef struct{
-	DataGram datagram;//æ•°æ®æŠ¥å†…å®¹
+	DataGram datagram;//Êı¾İ±¨ÄÚÈİ
 	int datagram_length;
-	SOCKADDR from;//æ•°æ®æŠ¥æ¥æºçš„åœ°å€
-	int addrlen;//æ•°æ®æŠ¥åœ°å€çš„é•¿åº¦
-	long long time;//æ”¶åˆ°æ•°æ®æŠ¥çš„æ—¶é—´æˆ³
+	SOCKADDR from;//Êı¾İ±¨À´Ô´µÄµØÖ·
+	int addrlen;//Êı¾İ±¨µØÖ·µÄ³¤¶È
+	long long time;//ÊÕµ½Êı¾İ±¨µÄÊ±¼ä´Á
 	
 }DataGramInfo ;
 
 
-//æ•°æ®åŒ…ä¿¡æ¯ç¼“å­˜é˜Ÿåˆ—
+//Êı¾İ°üĞÅÏ¢»º´æ¶ÓÁĞ
 
 typedef struct QNode* PtrToQNode;
 struct QNode {
@@ -81,7 +79,7 @@ void Serve_for_ThreadII();
 WSADATA wsaData;
 SOCKET local_socket, extern_socket;
 SOCKADDR_IN local_name, extern_name;
-//é˜Ÿåˆ—è¦å­˜å‚¨ä¿¡æ¯çš„ç»“æ„ä½“ï¼ˆæŠ¥æ–‡åŠ å‘ä¿¡è€…åœ°å€bulabulaã€‚ã€‚ã€‚ï¼‰
+//¶ÓÁĞÒª´æ´¢ĞÅÏ¢µÄ½á¹¹Ìå£¨±¨ÎÄ¼Ó·¢ĞÅÕßµØÖ·bulabula¡£¡£¡££©
 
 
 Queue Create_Queue(int MaxSize);
@@ -90,3 +88,21 @@ int In_Queue(Queue Q, DataGramInfo datagram_info);
 int Out_Queue(Queue Q, DataGramInfo *datagram_info_ptr);
 int QIs_full(Queue Q);
 int QIs_empty(Queue Q);
+
+//ÓÃÓÚÍ¨ĞÅµÄÈ«¾Ö±äÁ¿£º
+int current_event = 0;//ÓÃÓÚÖ÷Ïß³ÌºÍµÚ¶şÏß³ÌÍ¨ĞÅ
+
+
+char extern_DNS_server_IP_address[max_IP_address_text] = "202.106.0.20"; //ÍâÔ´DNS·şÎñÆ÷IPµØÖ·
+int exception_flag = 0; //Òì³£±ê¼Ç£¬ÓĞÒì³£Ê±»á±»ÖÃ1
+
+InitialParameters init;
+//ÖĞ¼Ì¹¦ÄÜÊ±µÄid×ª»»±í
+Idconvert idconvert[ID_TABLE_SIZE];
+//ÓÃÓÚĞÅÏ¢´æ´¢µÄÈ«¾Ö±äÁ¿£º
+//³õÊ¼Ê±¶ÁÈëµÄ¶ÔÓ¦±í£¬Õâ¸öÒ»Ö±±£Áô
+//¶¯Ì¬¸üĞÂµÄ¶ÔÓ¦±íĞÅÏ¢
+
+//±¨ÎÄºÍĞÅÏ¢¶ÓÁĞ
+Queue datagram_info_queue_for_user;
+Queue datagram_info_queue_for_extern_DNS_server;

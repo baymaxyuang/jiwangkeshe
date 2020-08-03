@@ -1,10 +1,10 @@
 #include "util.h"
 
 
-// é€šç”¨çš„å„ç§å·¥å…·å‡½æ•°æ”¾åœ¨util.cé‡Œ
+// Í¨ÓÃµÄ¸÷ÖÖ¹¤¾ßº¯Êı·ÅÔÚutil.cÀï
 
 
-//è®°æ—¶çš„å‡½æ•°
+//¼ÇÊ±µÄº¯Êı
 
 void Set_time_out() {
 
@@ -12,13 +12,13 @@ void Set_time_out() {
 
 
 
-//å»ºç«‹é˜Ÿåˆ—çš„çš„å‡½æ•°å’Œå¤„ç†é˜Ÿåˆ—çš„è‹¥å¹²å‡½æ•°å‡½æ•°
+//½¨Á¢¶ÓÁĞµÄµÄº¯ÊıºÍ´¦Àí¶ÓÁĞµÄÈô¸Éº¯Êıº¯Êı
 //
 
 
 
 
-//å¤„ç†åˆå§‹åŒ–å‚æ•°çš„å‡½æ•°
+//´¦Àí³õÊ¼»¯²ÎÊıµÄº¯Êı
 void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 {
 	int customize_dns = 0, customize_file = 0;
@@ -31,29 +31,29 @@ void Access_info(int argc, char* argv[], InitialParameters* initial_parameters)
 		if (argc > 2)
 		{
 			customize_dns = 1; /* If user set the dns server ip address */
-			strcpy(initial_parameters->extern_DNS_server_IP_address, argv[2]);
+			strcpy_S(initial_parameters->extern_DNS_server_IP_address, argv[2]);
 		}
 	}
 
-	//ä½¿ç”¨é»˜è®¤çš„dnsåœ°å€
+	//Ê¹ÓÃÄ¬ÈÏµÄdnsµØÖ·
 	if (argc == 1 || argc == 2)
-		strcpy(initial_parameters->extern_DNS_server_IP_address, "202.106.0.20");
+		strcpy_S(initial_parameters->extern_DNS_server_IP_address, "202.106.0.20");
 
 	if (argc > 3)
 	{
 		customize_file = 1;
-		strcpy(initial_parameters->file_path, argv[3]);
+		strcpy_S(initial_parameters->file_path, argv[3]);
 	}
 	else
-		strcpy(initial_parameters->file_path, "dnsrelay.txt");
+		strcpy_S(initial_parameters->file_path, "dnsrelay.txt");
 
 	printf("Debug level : %d\n", initial_parameters->debug_information_level);
 	printf("DNS server : %s\n", initial_parameters->extern_DNS_server_IP_address);
-	printf("é…ç½®æ–‡ä»¶ : %s\n", initial_parameters->file_path);
+	printf("ÅäÖÃÎÄ¼ş : %s\n", initial_parameters->file_path);
 }
 
 
-//è¯»å…¥å¯¹åº”è¡¨çš„å‡½æ•°
+//¶ÁÈë¶ÔÓ¦±íµÄº¯Êı
 void read_data(InitialParameters* initial_parameters)
 {
 	FILE* file;
@@ -61,7 +61,7 @@ void read_data(InitialParameters* initial_parameters)
 	if ((file = fopen("dnsrely.txt", "r")) == NULL)
 		return;
 	char url[max_list_file_path_text], ip[max_IP_address_text];
-	while (fscanf(file, "%s %s", ip, url) > 0) {
+	while (fscanf_s(file, "%s %s", ip, url) > 0) {
 		if (initial_parameters->debug_information_level >= 1)
 			printf("Read from 'dnsrelay.txt Url: %s, IP: %s\n", url, ip);
 		local_table[i].ip = ip;
@@ -71,22 +71,20 @@ void read_data(InitialParameters* initial_parameters)
 	fclose(file);
 }
 //
-////æ›´æ–°å¯¹åº”è¡¨çš„å‡½æ•°ï¼Œè¿‡æ—¶çš„å°±ä¸è¦äº†
+////¸üĞÂ¶ÔÓ¦±íµÄº¯Êı£¬¹ıÊ±µÄ¾Í²»ÒªÁË
 //void Update_data()
 //{
 //	
 //}
 //
 //
-////å°è£…å¥½å‘æŠ¥å‡½æ•°ï¼Œï¼ˆå› ä¸ºsocketè‡ªå·±é‚£ä¸ªå‡½æ•°å‚æ•°å¤ªå¤šäº†ï¼‰
-////è¾“å…¥ï¼šsocketã€dnsæŠ¥æ–‡
-////ç„¶åå°±ä¼šå‘æŠ¥
+////·â×°ºÃ·¢±¨º¯Êı£¬£¨ÒòÎªsocket×Ô¼ºÄÇ¸öº¯Êı²ÎÊıÌ«¶àÁË£©
+////ÊäÈë£ºsocket¡¢dns±¨ÎÄ
+////È»ºó¾Í»á·¢±¨
 //
-////å°è£…å¥½çš„æ¥å—æŠ¥æ–‡çš„å‡½æ•°
-////è¾“å…¥ï¼šé˜Ÿåˆ—åœ°å€
-////å°±ä¼šæŠŠæ”¶åˆ°çš„å­˜èµ·æ¥
-//
-//
+////·â×°ºÃµÄ½ÓÊÜ±¨ÎÄµÄº¯Êı
+////ÊäÈë£º¶ÓÁĞµØÖ·
+////¾Í»á°ÑÊÕµ½µÄ´æÆğÀ´
 //
 //
 //
@@ -94,9 +92,11 @@ void read_data(InitialParameters* initial_parameters)
 //
 //
 //
-////å‘æ§åˆ¶å°è¾“å‡ºè°ƒè¯•ä¿¡æ¯çš„å‡½æ•°
 //
-//void lprintf()//å¸¦æ—¶é—´çš„æ—¥å¿—æ‰“å°å‡½æ•°ï¼Œå¯ä»¥å¥—ä¸€ä¸‹é“¾è·¯å±‚é‚£ä¸ª
+//
+////Ïò¿ØÖÆÌ¨Êä³öµ÷ÊÔĞÅÏ¢µÄº¯Êı
+//
+//void lprintf()//´øÊ±¼äµÄÈÕÖ¾´òÓ¡º¯Êı£¬¿ÉÒÔÌ×Ò»ÏÂÁ´Â·²ãÄÇ¸ö
 //{
 //
 //}
@@ -106,14 +106,14 @@ void read_data(InitialParameters* initial_parameters)
 //
 //}
 
-void Add_to_cache(char *url, char* ip) //å‘cacheä¸­æ›´æ–°ï¼ˆLRUéƒ¨åˆ†ï¼‰
+void Add_to_cache(char *url, char* ip) //ÏòcacheÖĞ¸üĞÂ£¨LRU²¿·Ö£©
 {
 
 }
 
 
 
-//è·å–å½“å‰æ—¶é—´
+//»ñÈ¡µ±Ç°Ê±¼ä
 long long get_current_time()
 {
 
