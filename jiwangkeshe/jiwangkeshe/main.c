@@ -1,7 +1,7 @@
-#include"util.h"
-#include<windows.h>   //创建线程函数需要操作系统函数
-#include<process.h>   //创建线程函数头文件
-
+#include "util.h"
+#include "queue.h"
+#include <windows.h>   //创建线程函数需要操作系统函数
+#include <process.h>   //创建线程函数头文件
 
 int main(int argc, char* argv[])
 {
@@ -10,6 +10,7 @@ int main(int argc, char* argv[])
 	//根据控制台参数做出反应，包括设置调试信息等级，设置外源DNS服务器IP地址，读入
 	Access_info(argc, argv, &init);
 
+	//初始化id转换表
 	for (int i = 0; i < ID_TABLE_SIZE; i++)
 	{
 		idconvert[i].origin_id = 0;
@@ -23,8 +24,8 @@ int main(int argc, char* argv[])
 	extern_socket = socket(AF_INET, SOCK_DGRAM, 0);
 
 	int non_block = 1;
-	ioctlsocket(local_socket, FIONBIO, (u_long FAR*)&non_block);
-	ioctlsocket(extern_socket, FIONBIO, (u_long FAR*)&non_block);
+	ioctlsocket(local_socket, FIONBIO, (u_long FAR*) & non_block);
+	ioctlsocket(extern_socket, FIONBIO, (u_long FAR*) & non_block);
 
 	if (local_socket < 0)
 	{
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 	local_name.sin_port = htons(DNS_PORT);      /* Set the port as DNS port (53) */
 
 	extern_name.sin_family = AF_INET;                         /* Set the family as AF_INET (TCP/IP) */
-	extern_name.sin_addr.s_addr = inet_pton(init.extern_DNS_server_IP_address);   /* Set to the IP of extern DNS server */
+	extern_name.sin_addr.s_addr = inet_addr(init.extern_DNS_server_IP_address);   /* Set to the IP of extern DNS server */
 	extern_name.sin_port = htons(DNS_PORT);
 
 	int reuse = 1;
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
 	}
 
 	printf("Bind socket port successfully.\n");
+
 	//初始化报文和信息队列，用于缓存从外源DNS服务器收到的报文及相关信息
 	//初始化报文和信息队列，用于缓存从用户收到的报文以及用户的地址等相关信息
 	datagram_info_queue_for_extern_DNS_server = Create_Queue(max_datagram_info_queue_size);
@@ -62,14 +64,16 @@ int main(int argc, char* argv[])
 	HANDLE Thread2 = 0;       //线程的访问句柄
 	unsigned ThreadID = 1;
 	//线程标识号,不用变量赋值，则只能为NULL
-	Thread2 = _beginThreadex(NULL, 0, Serve_for_ThreadII, NULL, 0, &ThreadID);
-    //开启第二线程，保证来自用户和外源DNS服务器的的报文和数据可以及时收到，且受到后会有相应的标记
-	
+	//Thread2 = _beginThreadex(NULL, 0, Serve_for_ThreadII, NULL, 0, &ThreadID);
+	//开启第二线程，保证来自用户和外源DNS服务器的的报文和数据可以及时收到，且受到后会有相应的标记
+
 	WaitForSingleObject(Thread2, INFINITE);//等待线程结束
 	CloseHandle(Thread2);//无须控制线程时删除此句柄，可防止内核对象泄露。
-	
+
+	read_data(&init);
+
 	int event = 0;
-	
+
 	//dns服务器的主协议部分：
 	while (exception_flag == 0)//无异常
 	{
@@ -88,10 +92,10 @@ int main(int argc, char* argv[])
 		//Update_data();
 
 
-	}		
-	
+	}
 
-	
+
+
 
 	return 0;
 
