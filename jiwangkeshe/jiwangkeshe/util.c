@@ -4,8 +4,17 @@
 
 //记时的函数
 
-void Set_time_out()
+void Set_time_out(Idconvert* idconvert, int ttl)
 {
+	idconvert->expire_time = time(NULL) + ttl;
+}
+
+int Whether_Expired(Idconvert* idconvert) {
+	
+	if (idconvert->expire_time > 0 && time(NULL) > idconvert->expire_time)
+	{
+		return 1;
+	}return 0;
 }
 
 //建立队列的的函数和处理队列的若干函数函数
